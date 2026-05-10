@@ -38,6 +38,7 @@
     }
 
     #chat{
+
       margin-top:60px;
 
       height:calc(100dvh - 140px);
@@ -55,6 +56,7 @@
       padding-bottom:120px;
 
       scroll-behavior:smooth;
+
     }
 
     .msg{
@@ -248,7 +250,7 @@ const popup =
   document.getElementById("popup");
 
 
-// id usuário
+// usuário
 let userId =
   localStorage.getItem("userId");
 
@@ -266,6 +268,28 @@ if(!userId){
   );
 
 }
+
+
+// pedir notificação
+async function askNotificationPermission(){
+
+  if(!("Notification" in window)){
+    return;
+  }
+
+  if(
+    Notification.permission !==
+    "granted"
+  ){
+
+    await Notification
+    .requestPermission();
+
+  }
+
+}
+
+askNotificationPermission();
 
 
 // som
@@ -320,6 +344,14 @@ function showPopup(text){
 }
 
 
+// usuário fora da aba?
+function isUserAway(){
+
+  return document.hidden;
+
+}
+
+
 // query
 const q = query(
 
@@ -337,7 +369,7 @@ let firstLoad = true;
 // realtime
 onSnapshot(q, (snapshot) => {
 
-  // limpa chat
+  // limpa
   chat.innerHTML = "";
 
   let lastMessage = null;
@@ -353,7 +385,7 @@ onSnapshot(q, (snapshot) => {
 
     div.classList.add("msg");
 
-    // minha msg
+    // minha
     if(data.userId === userId){
 
       div.classList.add("me");
@@ -380,7 +412,7 @@ onSnapshot(q, (snapshot) => {
 
   });
 
-  // scroll final
+  // scroll
   scrollBottom();
 
 
@@ -395,25 +427,56 @@ onSnapshot(q, (snapshot) => {
 
   ){
 
-    // som
-    audio.play();
+    // só alerta se usuário estiver fora
+    if(isUserAway()){
 
-    // vibração
-    vibratePhone();
+      // som
+      audio.play();
 
-    // popup
-    showPopup(lastMessage.text);
+      // vibração
+      vibratePhone();
 
-    // muda título
-    document.title =
-      "💬 Nova mensagem!";
+      // popup
+      showPopup(lastMessage.text);
 
-    setTimeout(() => {
+      // notificação android/chrome
+      if(
 
+        "Notification" in window &&
+
+        Notification.permission ===
+        "granted"
+
+      ){
+
+        new Notification(
+
+          "Nova mensagem 💬",
+
+          {
+
+            body:lastMessage.text,
+
+            silent:false
+
+          }
+
+        );
+
+      }
+
+      // muda título
       document.title =
-        "Chat Firebase";
+        "💬 Nova mensagem!";
 
-    }, 3000);
+      setTimeout(() => {
+
+        document.title =
+          "Chat Firebase";
+
+      }, 3000);
+
+    }
 
   }
 
