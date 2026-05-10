@@ -22,6 +22,7 @@
       margin:0;
       font-family:Arial;
       background:#0b141a;
+      overflow:hidden;
     }
 
     .topo{
@@ -30,15 +31,30 @@
       padding:15px;
       font-size:20px;
       font-weight:bold;
+      position:fixed;
+      top:0;
+      width:100%;
+      z-index:10;
     }
 
     #chat{
-      height:calc(100vh - 130px);
+      margin-top:60px;
+
+      height:calc(100dvh - 140px);
+
       overflow-y:auto;
+
       display:flex;
+
       flex-direction:column;
+
       gap:10px;
+
       padding:15px;
+
+      padding-bottom:120px;
+
+      scroll-behavior:smooth;
     }
 
     .msg{
@@ -142,10 +158,10 @@ import {
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// FIREBASE
+// firebase
 const firebaseConfig = {
 
-  apiKey: "SUA_API_KEY",
+  apiKey:"SUA_API_KEY",
 
   authDomain:
     "chat-a1927.firebaseapp.com",
@@ -165,7 +181,7 @@ const firebaseConfig = {
 };
 
 
-// iniciar firebase
+// iniciar
 const app =
   initializeApp(firebaseConfig);
 
@@ -181,7 +197,7 @@ const input =
   document.getElementById("msg");
 
 
-// cria id usuário
+// id usuário
 let userId =
   localStorage.getItem("userId");
 
@@ -201,22 +217,7 @@ if(!userId){
 }
 
 
-// pedir permissão notificação
-if("Notification" in window){
-
-  if(
-    Notification.permission !==
-    "granted"
-  ){
-
-    Notification.requestPermission();
-
-  }
-
-}
-
-
-// SOM
+// som
 const audio = new Audio(
   "https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3"
 );
@@ -238,6 +239,19 @@ function vibratePhone(){
 }
 
 
+// força scroll mobile
+function scrollBottom(){
+
+  setTimeout(() => {
+
+    chat.scrollTop =
+      chat.scrollHeight + 9999;
+
+  }, 100);
+
+}
+
+
 // query
 const q = query(
 
@@ -255,7 +269,7 @@ let firstLoad = true;
 // realtime
 onSnapshot(q, (snapshot) => {
 
-  // limpa chat
+  // limpa
   chat.innerHTML = "";
 
   let lastMessage = null;
@@ -298,9 +312,8 @@ onSnapshot(q, (snapshot) => {
 
   });
 
-  // scroll final
-  chat.scrollTop =
-    chat.scrollHeight;
+  // scroll
+  scrollBottom();
 
 
   // notificação
@@ -314,34 +327,13 @@ onSnapshot(q, (snapshot) => {
 
   ){
 
-    // toca som
+    // som
     audio.play();
 
-    // vibra
+    // vibração
     vibratePhone();
 
-    // notificação browser
-    if(
-
-      "Notification" in window &&
-
-      Notification.permission ===
-      "granted"
-
-    ){
-
-      new Notification(
-        "Nova mensagem 💬",
-        {
-
-          body:lastMessage.text
-
-        }
-      );
-
-    }
-
-    // muda título
+    // título
     document.title =
       "💬 Nova mensagem!";
 
@@ -352,6 +344,15 @@ onSnapshot(q, (snapshot) => {
 
     }, 3000);
 
+    // alerta mobile
+    if(document.hidden){
+
+      alert(
+        "Nova mensagem 💬"
+      );
+
+    }
+
   }
 
   firstLoad = false;
@@ -359,7 +360,7 @@ onSnapshot(q, (snapshot) => {
 });
 
 
-// enviar msg
+// enviar
 window.sendMsg = async function(){
 
   const text =
