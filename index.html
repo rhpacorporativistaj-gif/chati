@@ -4,104 +4,93 @@
 <head>
   <meta charset="UTF-8" />
 
-  <!-- importante mobile -->
+  <!-- mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Chat Real Time</title>
+  <title>Chat Firebase</title>
 
   <style>
-    * {
+
+    *{
       box-sizing: border-box;
     }
 
-    body {
-      margin: 0;
+    body{
+      margin:0;
       font-family: Arial;
-      background: #0b141a;
+      background:#0b141a;
     }
 
-    .topo {
-      background: #202c33;
-      color: white;
-      padding: 15px;
-      font-size: 20px;
-      font-weight: bold;
+    .topo{
+      background:#202c33;
+      color:white;
+      padding:15px;
+      font-size:20px;
+      font-weight:bold;
     }
 
-    #chat {
-      height: calc(100vh - 130px);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      padding: 15px;
-      gap: 10px;
+    #chat{
+      height:calc(100vh - 130px);
+      overflow-y:auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:15px;
     }
 
-    .msg {
-      max-width: 75%;
-      padding: 10px;
-      border-radius: 10px;
-      color: white;
-      word-break: break-word;
-      animation: fade .15s ease;
+    .msg{
+      max-width:75%;
+      padding:10px;
+      border-radius:10px;
+      color:white;
+      word-break:break-word;
     }
 
-    .me {
-      align-self: flex-end;
-      background: #005c4b;
+    .me{
+      align-self:flex-end;
+      background:#005c4b;
     }
 
-    .other {
-      align-self: flex-start;
-      background: #202c33;
+    .other{
+      align-self:flex-start;
+      background:#202c33;
     }
 
-    .name {
-      font-size: 11px;
-      opacity: .7;
-      margin-bottom: 5px;
+    .name{
+      font-size:11px;
+      opacity:.7;
+      margin-bottom:5px;
     }
 
-    .bottom {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      background: #202c33;
+    .bottom{
+      position:fixed;
+      bottom:0;
+      width:100%;
+      display:flex;
+      gap:10px;
+      padding:10px;
+      background:#202c33;
     }
 
-    input {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      outline: none;
-      font-size: 16px;
+    input{
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      outline:none;
+      font-size:16px;
     }
 
-    button {
-      border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
-      background: #00a884;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
+    button{
+      border:none;
+      background:#00a884;
+      color:white;
+      padding:12px 18px;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
     }
 
-    @keyframes fade {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
   </style>
 </head>
 
@@ -114,185 +103,188 @@
   <div id="chat"></div>
 
   <div class="bottom">
-    <input id="msg" placeholder="Digite uma mensagem..." />
-    <button onclick="sendMsg()">Enviar</button>
+
+    <input
+      id="msg"
+      placeholder="Digite uma mensagem..."
+    >
+
+    <button onclick="sendMsg()">
+      Enviar
+    </button>
+
   </div>
 
-  <script type="module">
+<script type="module">
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      onSnapshot,
-      query,
-      orderBy
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-    // FIREBASE
-    const firebaseConfig = {
-
-      apiKey: "SUA_API_KEY",
-
-      authDomain: "chat-a1927.firebaseapp.com",
-
-      projectId: "chat-a1927",
-
-      storageBucket: "chat-a1927.firebasestorage.app",
-
-      messagingSenderId: "450148123040",
-
-      appId: "1:450148123040:web:f7a91bbf5bd1e18d42a4c5"
-
-    };
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-    const app = initializeApp(firebaseConfig);
+// firebase
+const firebaseConfig = {
 
-    const db = getFirestore(app);
+  apiKey: "SUA_API_KEY",
 
-    const chat = document.getElementById("chat");
+  authDomain: "chat-a1927.firebaseapp.com",
+
+  projectId: "chat-a1927",
+
+  storageBucket: "chat-a1927.firebasestorage.app",
+
+  messagingSenderId: "450148123040",
+
+  appId: "1:450148123040:web:f7a91bbf5bd1e18d42a4c5"
+
+};
 
 
-    // cria id do usuário
-    let userId = localStorage.getItem("userId");
+// iniciar
+const app = initializeApp(firebaseConfig);
 
-    if (!userId) {
+const db = getFirestore(app);
 
-      userId = "user_" + Math.floor(Math.random() * 99999);
 
-      localStorage.setItem("userId", userId);
+// elementos
+const chat = document.getElementById("chat");
+
+const input = document.getElementById("msg");
+
+
+// id usuário
+let userId = localStorage.getItem("userId");
+
+if(!userId){
+
+  userId =
+    "user_" +
+    Math.floor(Math.random() * 99999);
+
+  localStorage.setItem(
+    "userId",
+    userId
+  );
+
+}
+
+
+// notificações
+if("Notification" in window){
+
+  if(Notification.permission !== "granted"){
+
+    Notification.requestPermission();
+
+  }
+
+}
+
+
+// query
+const q = query(
+  collection(db, "messages"),
+  orderBy("createdAt")
+);
+
+
+// realtime
+onSnapshot(q, (snapshot) => {
+
+  // limpa chat
+  chat.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+
+    const data = doc.data();
+
+    const div =
+      document.createElement("div");
+
+    div.classList.add("msg");
+
+    // minha msg
+    if(data.userId === userId){
+
+      div.classList.add("me");
+
+    }else{
+
+      div.classList.add("other");
 
     }
 
+    div.innerHTML = `
+      <div class="name">
+        ${data.userId}
+      </div>
 
-    // pedir permissão de notificação
-    if ("Notification" in window) {
+      <div>
+        ${data.text}
+      </div>
+    `;
 
-      if (Notification.permission !== "granted") {
+    chat.appendChild(div);
 
-        Notification.requestPermission();
+  });
 
-      }
+  // scroll final
+  chat.scrollTop =
+    chat.scrollHeight;
+
+});
+
+
+// enviar msg
+window.sendMsg = async function(){
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  input.value = "";
+
+  await addDoc(
+    collection(db, "messages"),
+    {
+
+      text:text,
+
+      userId:userId,
+
+      createdAt:Date.now()
+
+    }
+  );
+
+};
+
+
+// enter envia
+input.addEventListener(
+  "keypress",
+  function(e){
+
+    if(e.key === "Enter"){
+
+      sendMsg();
 
     }
 
+  }
+);
 
-    // query
-    const q = query(
-      collection(db, "messages"),
-      orderBy("createdAt")
-    );
-
-
-    let loaded = false;
-
-    const renderedMessages = new Set();
-
-
-    // realtime
-    onSnapshot(q, (snapshot) => {
-
-      snapshot.docChanges().forEach((change) => {
-
-        if (change.type === "added") {
-
-          const doc = change.doc;
-
-          // evita duplicar
-          if (renderedMessages.has(doc.id)) return;
-
-          renderedMessages.add(doc.id);
-
-          const data = doc.data();
-
-          const div = document.createElement("div");
-
-          div.classList.add("msg");
-
-          // minha mensagem
-          if (data.userId === userId) {
-
-            div.classList.add("me");
-
-          } else {
-
-            div.classList.add("other");
-
-            // notificação
-            if (
-              loaded &&
-              Notification.permission === "granted"
-            ) {
-
-              new Notification("Nova mensagem", {
-                body: data.text
-              });
-
-            }
-
-          }
-
-          div.innerHTML = `
-            <div class="name">${data.userId}</div>
-            <div>${data.text}</div>
-          `;
-
-          chat.appendChild(div);
-
-          // scroll automático
-          chat.scrollTop = chat.scrollHeight;
-
-        }
-
-      });
-
-      loaded = true;
-
-    });
-
-
-    // enviar
-    window.sendMsg = async function () {
-
-      const input = document.getElementById("msg");
-
-      const text = input.value.trim();
-
-      if (!text) return;
-
-      input.value = "";
-
-      await addDoc(collection(db, "messages"), {
-
-        text: text,
-
-        userId: userId,
-
-        createdAt: Date.now()
-
-      });
-
-    };
-
-
-    // enter envia
-    document.getElementById("msg")
-      .addEventListener("keypress", function (e) {
-
-        if (e.key === "Enter") {
-
-          sendMsg();
-
-        }
-
-      });
-
-  </script>
+</script>
 
 </body>
-
 </html>
