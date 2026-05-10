@@ -12,6 +12,17 @@
 
   <title>Chat Firebase</title>
 
+  <!-- PWA -->
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <meta
+    name="theme-color"
+    content="#202c33"
+  >
+
   <style>
 
     *{
@@ -112,8 +123,6 @@
       cursor:pointer;
     }
 
-    /* popup */
-
     #popup{
 
       position:fixed;
@@ -169,7 +178,6 @@
 
   <div id="chat"></div>
 
-  <!-- popup -->
   <div id="popup"></div>
 
   <div class="bottom">
@@ -292,6 +300,16 @@ async function askNotificationPermission(){
 askNotificationPermission();
 
 
+// service worker
+if("serviceWorker" in navigator){
+
+  navigator.serviceWorker.register(
+    "./sw.js"
+  );
+
+}
+
+
 // som
 const audio = new Audio(
   "https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3"
@@ -327,7 +345,7 @@ function scrollBottom(){
 }
 
 
-// popup visual
+// popup
 function showPopup(text){
 
   popup.innerText =
@@ -344,7 +362,7 @@ function showPopup(text){
 }
 
 
-// usuário fora da aba?
+// usuário fora?
 function isUserAway(){
 
   return document.hidden;
@@ -369,7 +387,6 @@ let firstLoad = true;
 // realtime
 onSnapshot(q, (snapshot) => {
 
-  // limpa
   chat.innerHTML = "";
 
   let lastMessage = null;
@@ -385,7 +402,6 @@ onSnapshot(q, (snapshot) => {
 
     div.classList.add("msg");
 
-    // minha
     if(data.userId === userId){
 
       div.classList.add("me");
@@ -412,11 +428,10 @@ onSnapshot(q, (snapshot) => {
 
   });
 
-  // scroll
   scrollBottom();
 
 
-  // nova msg recebida
+  // nova msg
   if(
 
     !firstLoad &&
@@ -427,45 +442,39 @@ onSnapshot(q, (snapshot) => {
 
   ){
 
-    // só alerta se usuário estiver fora
     if(isUserAway()){
 
       // som
       audio.play();
 
-      // vibração
+      // vibra
       vibratePhone();
 
       // popup
       showPopup(lastMessage.text);
 
-      // notificação android/chrome
-      if(
+      // notificação android
+      navigator.serviceWorker
+      ?.ready
+      .then((registration) => {
 
-        "Notification" in window &&
-
-        Notification.permission ===
-        "granted"
-
-      ){
-
-        new Notification(
-
+        registration.showNotification(
           "Nova mensagem 💬",
-
           {
 
             body:lastMessage.text,
 
-            silent:false
+            icon:
+              "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+
+            vibrate:[200,100,200]
 
           }
-
         );
 
-      }
+      });
 
-      // muda título
+      // título
       document.title =
         "💬 Nova mensagem!";
 
@@ -514,7 +523,7 @@ window.sendMsg = async function(){
 };
 
 
-// enter envia
+// enter
 input.addEventListener(
 
   "keypress",
