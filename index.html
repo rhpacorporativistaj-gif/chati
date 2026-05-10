@@ -370,6 +370,13 @@ function isUserAway(){
 }
 
 
+// salva última msg vista
+let lastSeenMessage =
+  localStorage.getItem(
+    "lastSeenMessage"
+  );
+
+
 // query
 const q = query(
 
@@ -378,10 +385,6 @@ const q = query(
   orderBy("createdAt")
 
 );
-
-
-// controle
-let firstLoad = true;
 
 
 // realtime
@@ -431,10 +434,8 @@ onSnapshot(q, (snapshot) => {
   scrollBottom();
 
 
-  // nova msg
+  // notificação
   if(
-
-    !firstLoad &&
 
     lastMessage &&
 
@@ -442,6 +443,42 @@ onSnapshot(q, (snapshot) => {
 
   ){
 
+    const currentMessageId =
+
+      lastMessage.createdAt +
+
+      "_" +
+
+      lastMessage.text;
+
+
+    // evita duplicada
+    if(
+
+      currentMessageId ===
+
+      lastSeenMessage
+
+    ){
+
+      return;
+
+    }
+
+
+    localStorage.setItem(
+
+      "lastSeenMessage",
+
+      currentMessageId
+
+    );
+
+    lastSeenMessage =
+      currentMessageId;
+
+
+    // usuário fora
     if(isUserAway()){
 
       // som
@@ -459,7 +496,9 @@ onSnapshot(q, (snapshot) => {
       .then((registration) => {
 
         registration.showNotification(
+
           "Nova mensagem 💬",
+
           {
 
             body:lastMessage.text,
@@ -470,6 +509,7 @@ onSnapshot(q, (snapshot) => {
             vibrate:[200,100,200]
 
           }
+
         );
 
       });
@@ -488,8 +528,6 @@ onSnapshot(q, (snapshot) => {
     }
 
   }
-
-  firstLoad = false;
 
 });
 
